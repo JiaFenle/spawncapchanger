@@ -1,0 +1,99 @@
+# Spawn Cap Changer（刷怪上限动态调整）
+
+> ## ⚠️ 许愿式开发，慎用。
+>
+> 本模组通过**反射在运行时直接改写** `MobCategory` 内部的 `private final` 刷怪上限制段，
+> 属于“没有官方 API、靠愿望相信它能用”的实现方式。作者只在编译期验证过代码，
+> **未在真实生存服/整合包里做长期验证**。可能出现但不限于：刷怪行为异常、卡顿、
+> 与其它修改刷怪逻辑的模组冲突、字段名随版本变动后静默失效。
+>
+> **上生产服前请务必先备份存档、在测试档里自行验证。作者不对任何存档损失负责。**
+
+一个 **Minecraft Java 版 1.21.1 / NeoForge 21.1.x** 模组（客户端与专用服务端同一份 jar），
+通过命令**动态修改自然刷怪上限**，执行后立即生效，无需重启；修改结果**随世界存档持久化**，
+重开服务器后自动恢复。
+
+## 命令
+
+所有命令都需要权限等级 2（OP / 作弊模式），与原版游戏规则命令一致。
+
+| 命令 | 作用 |
+| --- | --- |
+| `/spawncap` 或 `/spawncap list` | 列出全部生物类别当前的刷怪上限与原版默认值 |
+| `/spawncap get <category>` | 查看某个类别的刷怪上限 |
+| `/spawncap set <category> <value>` | 设置某个类别的刷怪上限（-1 ~ 100000），立即生效并写入存档 |
+| `/spawncap setall <value>` | 一次性设置所有自然刷怪类别（不含 `misc`），范围 0 ~ 100000 |
+| `/spawncap reset [category]` | 不带参数：全部重置为原版默认值；带参数：只重置指定类别 |
+
+`<category>` 可选项（Tab 可补全）：
+
+| 类别 | 原版默认上限 | 说明 |
+| --- | --- | --- |
+| `monster` | 70 | 敌对生物（僵尸、骷髅、苦力怕等） |
+| `creature` | 10 | 地表友好生物（牛、羊等） |
+| `ambient` | 15 | 环境生物（蝙蝠） |
+| `axolotls` | 5 | 美西螈 |
+| `underground_water_creature` | 5 | 地下水生生物（发光鱿鱼） |
+| `water_creature` | 5 | 水生生物（海豚、鱿鱼） |
+| `water_ambient` | 20 | 水中环境生物（各种鱼） |
+| `misc` | -1 | 杂项（不受自然刷怪器管理，`setall` 会跳过它；-1 表示无限制） |
+
+### 示例
+
+```mcfunction
+/spawncap set monster 200          # 敌对生物上限拉到 200
+/spawncap set creature 0           # 不再自然生成地表动物
+/spawncap setall 50                # 所有类别统一为 50
+/spawncap get monster
+/spawncap reset monster            # 怪物上限恢复为 70
+/spawncap reset                    # 全部恢复原版默认
+```
+
+## “刷怪上限”是怎么算的？
+
+原版自然刷怪器（`NaturalSpawner`）每隔约 200 tick（10 秒）尝试刷怪时，会读取
+`MobCategory#getMaxInstancesPerChunk()`，并根据已加载区块数量折算成全局上限
+（大致是 `每区块上限 × 已加载区块数 / 289`）。本模组直接改的就是这个“每区块上限”，
+因此**下一轮刷怪检测就会按新值执行**，不需要重启。
+
+注意：上限只决定“最多允许有多少”，不保证一定刷满。把 `monster` 设成 100000 不会让怪物
+瞬间刷满屏幕，实际数量仍受亮度、地形、刷怪条件和服务器性能限制。
+
+## 安装
+
+1. 安装 **NeoForge 21.1.x for Minecraft 1.21.1**（客户端或专用服务端均可）。
+2. 把本模组 jar 放进 `.minecraft/mods`（客户端）或服务端的 `mods/` 目录。
+3. 本模组服务端也需要安装；客户端进入未安装本模组的服务器时该命令不可用。
+
+## 从源码构建
+
+需要 JDK 21：
+
+```bash
+./gradlew build
+```
+
+产物位于 `build/libs/spawncapchanger-1.0.0.jar`。
+
+开发环境调试：
+
+```bash
+./gradlew runClient
+./gradlew runServer
+```
+
+## 实现原理（以及为什么不靠谱）
+
+- `MobCategory` 里的上限制段是 `private final int`，Mojang 没有提供修改 API。
+- 本模组在类加载时用反射扫描 `MobCategory` 的全部非静态 int 字段，找出在**所有枚举常量上**
+  取值都等于 `getMaxInstancesPerChunk()` 的那个字段（另一个 int 字段是消失距离，取值恒不相同），
+  再通过 `Field#setInt` 改写，因此不依赖具体字段名。
+- 自定义数值保存在主世界的 `SavedData`（数据文件内
+  `data/spawncapchanger_caps.dat`）中，服务器启动时读取并重新应用；切换存档时会先恢复原版默认值，
+  避免上限在不同世界之间串档。
+
+**再次提醒：许愿式开发，慎用。欢迎在 Issues 报 bug，但不保证修复。**
+
+## 许可证
+
+[MIT](LICENSE)

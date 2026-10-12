@@ -1,0 +1,91 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '1.0.21'
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = mod_id
+}
+
+// Mojang ships Java 21 for 1.20.5+
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+neoForge {
+    // NeoForge version for Minecraft 1.21.1
+    version = project.neo_version
+
+    runs {
+        client {
+            client()
+        }
+        data {
+            data()
+        }
+        server {
+            server()
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+repositories {
+    // NeoForged CDN mirror of maven.neoforged.net (the official host can be unreachable
+    // from some networks; this serves exactly the same /releases layout).
+    maven {
+        name = 'NeoForgedCdn'
+        url = 'https://neoforged.forgecdn.net/releases'
+    }
+    // Mirror of MDG's auto-injected "Mojang Meta" repository (synthesized Gradle metadata).
+    maven {
+        name = 'NeoForgedCdnMojangMeta'
+        url = 'https://neoforged.forgecdn.net/mojang-meta'
+        metadataSources {
+            mavenPom()
+            gradleMetadata()
+        }
+    }
+    // China mirror first (Aliyun), Maven Central as fallback.
+    maven {
+        name = 'AliyunPublic'
+        url = 'https://maven.aliyun.com/repository/public'
+    }
+    mavenCentral()
+}
+
+dependencies {
+    // No external dependencies required.
+}
+
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_name            : loader_name,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}

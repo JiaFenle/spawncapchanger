@@ -1,0 +1,12 @@
+{
+    "command.spawncapchanger.list.header": "Current natural spawn caps (per chunk):",
+    "command.spawncapchanger.list.entry": "  %s: %s (vanilla default %s)",
+    "command.spawncapchanger.get.result": "%s spawn cap is %s (vanilla default %s).",
+    "command.spawncapchanger.set.success": "Set %s spawn cap to %s. It takes effect immediately.",
+    "command.spawncapchanger.setall.success": "Set the spawn cap of %s mob categories (except misc) to %s.",
+    "command.spawncapchanger.reset.success": "Reset %s spawn cap to its vanilla default (%s).",
+    "command.spawncapchanger.resetall.success": "All spawn caps have been reset to vanilla defaults.",
+    "command.spawncapchanger.unknown.category": "Unknown mob category: '%s'. Valid categories: monster, creature, ambient, axolotls, underground_water_creature, water_creature, water_ambient, misc",
+    "command.spawncapchanger.unavailable": "Spawn Cap Changer could not access the internal spawn-cap field, so the cap cannot be changed. Check the server log for details.",
+    "command.spawncapchanger.disabled_misc": "The 'misc' category is not managed by the natural spawner; skipping it."
+}

@@ -1,0 +1,12 @@
+{
+    "command.spawncapchanger.list.header": "当前自然刷怪上限（每区块）：",
+    "command.spawncapchanger.list.entry": "  %s：%s（原版默认 %s）",
+    "command.spawncapchanger.get.result": "%s 的刷怪上限为 %s（原版默认 %s）。",
+    "command.spawncapchanger.set.success": "已将 %s 的刷怪上限设为 %s，立即生效。",
+    "command.spawncapchanger.setall.success": "已将 %s 个刷怪类别（misc 除外）的刷怪上限设为 %s。",
+    "command.spawncapchanger.reset.success": "已将 %s 的刷怪上限重置为原版默认值（%s）。",
+    "command.spawncapchanger.resetall.success": "所有刷怪上限已重置为原版默认值。",
+    "command.spawncapchanger.unknown.category": "未知的生物类别：“%s”。有效类别：monster、creature、ambient、axolotls、underground_water_creature、water_creature、water_ambient、misc",
+    "command.spawncapchanger.unavailable": "Spawn Cap Changer 无法访问游戏内部的刷怪上限字段，修改失败。详情请查看服务端日志。",
+    "command.spawncapchanger.disabled_misc": "misc 类别不受自然刷怪器管理，已跳过。"
+}
