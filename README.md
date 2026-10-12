@@ -99,7 +99,8 @@
 
 ## 实现原理（以及为什么不靠谱）
 
-- `MobCategory` 里的上限制段是 `private final int`，Mojang 没有提供修改 API。
+- `MobCategory` 里的上限制段是 `private final int`
+- Mojang 没有提供修改 API
 - 本模组在类加载时用反射扫描 `MobCategory` 的全部非静态 int 字段，找出在**所有枚举常量上**
   取值都等于 `getMaxInstancesPerChunk()` 的那个字段（另一个 int 字段是消失距离，取值恒不相同），
   再通过 `Field#setInt` 改写，因此不依赖具体字段名。
